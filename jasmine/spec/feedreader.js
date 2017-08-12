@@ -26,36 +26,64 @@ $(function() {
             expect(allFeeds.length).not.toBe(0);
         });
 
-
         /* TODO: Write a test that loops through each feed
          * in the allFeeds object and ensures it has a URL defined
          * and that the URL is not empty.
          */
-
+        it('have an url', function() {
+            allFeeds.forEach(function(feed) {
+                expect(feed.url).toBeDefined();
+                expect(typeof feed.url).toBe('string');
+                expect(feed.url.length).not.toBe(0);
+            });
+        });
 
         /* TODO: Write a test that loops through each feed
          * in the allFeeds object and ensures it has a name defined
          * and that the name is not empty.
          */
+        it('have a name', function() {
+            allFeeds.forEach(function(feed) {
+                expect(feed.name).toBeDefined();
+                expect(typeof feed.name).toBe('string');
+                expect(feed.name.length).not.toBe(0);
+            });
+        });
     });
 
-
     /* TODO: Write a new test suite named "The menu" */
-
+    describe('The menu', function() {
         /* TODO: Write a test that ensures the menu element is
          * hidden by default. You'll have to analyze the HTML and
          * the CSS to determine how we're performing the
          * hiding/showing of the menu element.
          */
+        it('is hidden by default', function() {
+            // expect the body tag to have the class 'menu-hidden'
+            expect($("body").hasClass('menu-hidden')).toBe(true);
+        });
 
          /* TODO: Write a test that ensures the menu changes
           * visibility when the menu icon is clicked. This test
           * should have two expectations: does the menu display when
           * clicked and does it hide when clicked again.
           */
+        it('changes visibility when menu icon is clicked', function() {
+            // Set the starting state of the body tag class
+            let startingState = $("body").hasClass('menu-hidden');
+
+            // Toggle menu visibility and expect the state to be different than the starting state
+            $('.menu-icon-link').click();
+            expect($("body").hasClass('menu-hidden')).not.toBe(startingState);
+
+            // Toggle menu visibility again and expect the state to be equal to the starting state again
+            $('.menu-icon-link').click();
+            expect($("body").hasClass('menu-hidden')).toBe(startingState);
+        });
+    });
 
     /* TODO: Write a new test suite named "Initial Entries" */
-
+    describe('Initial Entries', function() {
         /* TODO: Write a test that ensures when the loadFeed
          * function is called and completes its work, there is at least
          * a single .entry element within the .feed container.
@@ -63,10 +91,52 @@ $(function() {
          * the use of Jasmine's beforeEach and asynchronous done() function.
          */
 
-    /* TODO: Write a new test suite named "New Feed Selection" */
+        // Load the first feed
+        beforeEach(function(done) {
+            // Fire off the loadFeed function and pass the done function as a callback so it gets fired afterwards
+            loadFeed(0, done);
+        });
 
+        it('are loaded successfully and contain at least one article', function() {
+            // count the number of articles (class .entry) for the loaded feed
+            let count = $('.feed .entry').length;
+            // check if there is at least 1 article
+            expect(count).toBeGreaterThan(0);
+        });
+    });
+
+    /* TODO: Write a new test suite named "New Feed Selection" */
+    describe('New Feed Selection', function() {
         /* TODO: Write a test that ensures when a new feed is loaded
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
+
+        // Load the first feed
+        beforeEach(function(done) {
+            // Fire off the loadFeed function and pass the done function as a callback so it gets fired afterwards
+            loadFeed(0, done);
+        });
+
+        // Reset the feed
+        afterEach(function() {
+            loadFeed(0);
+        });
+
+        // This test relies on another async operation, so we will pass done into it
+        it('is loaded and displayed successfully', function(done) {
+            // Grab the starting feed-content (this is from feed 0)
+            let startingFeed = $('.feed').html();
+
+            // Load the next feed
+            loadFeed(1, function() {
+                // Grad the current feed-content (should be from feed 1 now)
+                let currentFeed = $('.feed').html();
+                // check if changed
+                expect(currentFeed).not.toEqual(startingFeed);
+                // call the done function at last
+                done();
+            });
+         });
+    });
 }());
